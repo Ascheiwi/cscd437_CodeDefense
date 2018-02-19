@@ -7,6 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
+#include <inttypes.h>
 
 void cleanBuffers(char *buf);
 int strLength(char *str, int max);
@@ -75,7 +76,7 @@ int main(void)
     printf("Please enter output file (Must be in same directory as this program): ");
     fgets(out, sizeof(out), stdin);
     cleanBuffers(out);
-    while((output = checkFile(out, sizeof(out), 0))== NULL)
+    while((output = checkFile(out, sizeof(out), 1))== NULL)
     {
         printf("Please enter a valid output file: ");
         fgets(out, sizeof(out), stdin);
@@ -86,6 +87,23 @@ int main(void)
     fgets(pwd, sizeof(pwd), stdin);
     cleanBuffers(pwd);
     
+    long long sumNum = (long long) valA + valB;
+    long long prodNum = (long long) valA * valB;
+    
+    char sum[256], prod[256];
+    ulltoa(sumNum, sum, 10);
+    ulltoa(prodNum, prod, 10);
+    
+    fprintf(output, "Name: %s, %s.\nSum: %s Product: %s\n", lName, fName, sum, prod);
+    
+    //Note: This used code from https://www.geeksforgeeks.org/c-program-copy-contents-one-file-another-file/
+    char c = fgetc(input);
+    while(c != EOF)
+    {
+        fputc(c, output);
+        c = fgetc(input);
+    }
+    
     fclose(input);
     fclose(output);
     
@@ -93,6 +111,7 @@ int main(void)
     getchar(); 
 }
 
+//Note: This used info/partial code from https://forum.pellesc.de/index.php?topic=6699.0
 void cleanBuffers(char *buf)
 {
     if(!strchr(buf, '\n'))
@@ -168,6 +187,8 @@ int checkInt(char *numStr, int bufSize)
     return 1;    
 }
 
+//Note: a portion of this code was taken from https://wiki.sei.cmu.edu/confluence/display/c/FIO03-C.+Do+not+make+assumptions+about+fopen%28%29+and+file+creation
+//and modified for use here.
 FILE* checkFile(char *fileName, int bufSize, int inOut)
 {
     FILE *file;
