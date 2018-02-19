@@ -7,17 +7,18 @@
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
-#include <inttypes.h>
 
 void cleanBuffers(char *buf);
 int strLength(char *str, int max);
 int checkName(char *name, int bufSize);
 int checkInt(char *numStr, int bufSize);
 FILE* checkFile(char *fileName, int bufSize, int inOut);
+int checkPwd(char *pwd, int bufSize, FILE *errFile);
+char* getPwd(char *storedPW, int bufSize, FILE *errFile);
 
 int main(void) 
 {
-    char fName[52], lName[52], numA[13], numB[13], in[52], out[52], pwd[52];
+    char fName[52], lName[52], numA[13], numB[13], in[52], out[52], pwd[52], storedPW[51];
     int valA, valB;
     FILE *input, *output;
     
@@ -83,9 +84,24 @@ int main(void)
         cleanBuffers(out); 
     }
     
-    printf("Please enter a password: ");
+    printf("Please enter a password (length must be > 8 and < 50: ");
     fgets(pwd, sizeof(pwd), stdin);
     cleanBuffers(pwd);
+    while(checkPwd(pwd, sizeof(pwd), output) == 0)
+    {
+        fgets(pwd, sizeof(pwd), stdin);
+        cleanBuffers(pwd);
+    }
+    
+    printf("Please enter created password to continue: ");
+    fgets(pwd, sizeof(pwd), stdin);
+    cleanBuffers(pwd);
+    while(strcmp(pwd, getPwd(storedPW, sizeof(storedPW), output)) != 0)
+    {
+        printf("Wrong password. Please enter password to continue: ");
+        fgets(pwd, sizeof(pwd), stdin);
+        cleanBuffers(pwd);
+    }
     
     long long sumNum = (long long) valA + valB;
     long long prodNum = (long long) valA * valB;
@@ -217,4 +233,49 @@ FILE* checkFile(char *fileName, int bufSize, int inOut)
         return file;
     }
     return file;
+}
+
+int checkPwd(char *pwd, int bufSize, FILE *errFile)
+{
+    int length = strLength(pwd, bufSize);
+    
+    if(length > 50 || length < 8 )
+    {
+        printf("Password length < 8 or > 50.\n");
+        return 0;
+    }
+    else
+    {
+        FILE *pass;
+        errno_t res = fopen_s(&pass, "password.txt", "w");
+        if(res != 0)
+        {
+            pass = NULL;
+            printf("Error accessing password.txt. Writing error to output file.");
+            fprintf(errFile, "File error: %d", res);
+            exit(0);
+        }
+        fprintf(pass, pwd);
+        fclose(pass);
+        return 1;
+    }
+}
+
+char* getPwd(char *storedPW, int bufSize, FILE *errFile)
+{
+    FILE *pass;
+    
+    errno_t res = fopen_s(&pass, "password.txt", "r");
+    if(res != 0)
+    {
+        pass = NULL;
+        printf("Error accessing password.txt. Writing error to output file.");
+        fprintf(errFile, "File error: %d", res);
+        exit(0);
+    }
+    else
+    {
+        fgets(storedPW, bufSize, pass);
+        return storedPW;
+    }
 }
