@@ -84,7 +84,7 @@ int main(void)
         cleanBuffers(out); 
     }
     
-    printf("Please enter a password (length must be > 8 and < 50: ");
+    printf("Please enter a password (length must be > 8 and < 50): ");
     fgets(pwd, sizeof(pwd), stdin);
     cleanBuffers(pwd);
     while(checkPwd(pwd, sizeof(pwd), output) == 0)
