@@ -12,11 +12,13 @@ void cleanBuffers(char *buf);
 int strLength(char *str, int max);
 int checkName(char *name, int bufSize);
 int checkInt(char *numStr, int bufSize);
+FILE* checkFile(char *fileName, int bufSize, int inOut);
 
 int main(void) 
 {
-    char fName[52], lName[52], numA[13], numB[13], in[51], out[51], pwd[51];
+    char fName[52], lName[52], numA[13], numB[13], in[52], out[52], pwd[51];
     int valA, valB;
+    FILE *input, *output;
     
     printf("Please enter a first name: ");
     fgets(fName, sizeof(fName), stdin);
@@ -63,10 +65,22 @@ int main(void)
     printf("Please enter input file: ");
     fgets(in, sizeof(in), stdin);
     cleanBuffers(in);
+    while((input = checkFile(in, sizeof(in), 0)) == NULL)
+    {
+        printf("Please enter a valid input file: ");
+        fgets(in, sizeof(in), stdin);
+        cleanBuffers(in); 
+    }
     
     printf("Please enter output file: ");
     fgets(out, sizeof(out), stdin);
     cleanBuffers(out);
+    while((output = checkFile(out, sizeof(out), 0))== NULL)
+    {
+        printf("Please enter a valid input file: ");
+        fgets(out, sizeof(out), stdin);
+        cleanBuffers(out); 
+    }
     
     printf("Please enter a password: ");
     fgets(pwd, sizeof(pwd), stdin);
@@ -150,4 +164,33 @@ int checkInt(char *numStr, int bufSize)
     }
     
     return 1;    
+}
+
+FILE* checkFile(char *fileName, int bufSize, int inOut)
+{
+    FILE *file;
+    if(strLength(fileName, bufSize) > 50)
+    {
+        printf("Filename exceeds 50 characters.\n");
+        file = NULL;
+        return file;
+    }
+    
+    char path[52] = "./";
+    strncpy(path + 2, fileName, bufSize);
+    char *par;
+    
+    if(inOut == 0)
+        par = "r";
+    else
+        par = "w";
+    
+    errno_t res = fopen_s(&file, path, par);
+    if(res != 0)
+    {
+        file = NULL;
+        printf("Invalid filename. File must be in the same directory as this program.\n");
+        return file;
+    }
+    return file;
 }
