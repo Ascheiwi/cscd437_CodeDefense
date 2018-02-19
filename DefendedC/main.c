@@ -62,7 +62,7 @@ int main(void)
     }
     valB = strtol(numB, NULL, 10);
     
-    printf("Please enter input file (Must be in same folder as this program): ");
+    printf("Please enter input file (Must be in same directory as this program): ");
     fgets(in, sizeof(in), stdin);
     cleanBuffers(in);
     while((input = checkFile(in, sizeof(in), 0)) == NULL)
@@ -72,7 +72,7 @@ int main(void)
         cleanBuffers(in); 
     }
     
-    printf("Please enter output file (Must be in same folder as this program): ");
+    printf("Please enter output file (Must be in same directory as this program): ");
     fgets(out, sizeof(out), stdin);
     cleanBuffers(out);
     while((output = checkFile(out, sizeof(out), 0))== NULL)
