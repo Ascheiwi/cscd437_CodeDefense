@@ -16,11 +16,11 @@ FILE* checkFile(char *fileName, int bufSize, int inOut);
 
 int main(void) 
 {
-    char fName[52], lName[52], numA[13], numB[13], in[52], out[52], pwd[51];
+    char fName[52], lName[52], numA[13], numB[13], in[52], out[52], pwd[52];
     int valA, valB;
     FILE *input, *output;
     
-    printf("Please enter a first name: ");
+    printf("Please enter a first name (Only alphabetic chars, length < 50): ");
     fgets(fName, sizeof(fName), stdin);
     cleanBuffers(fName);
     while(checkName(fName, sizeof(fName)) == 0)
@@ -30,7 +30,7 @@ int main(void)
         cleanBuffers(fName);
     }
     
-    printf("Please enter a last name: ");
+    printf("Please enter a last name (Only alphabetic chars, length < 50): ");
     fgets(lName, sizeof(lName), stdin);
     cleanBuffers(lName);
     while(checkName(lName, sizeof(lName)) == 0)
@@ -40,7 +40,7 @@ int main(void)
         cleanBuffers(lName);
     }
     
-    printf("Please enter first digit: ");
+    printf("Please enter first integer (Only digits, -2147483648 to 2147483647): ");
     fgets(numA, sizeof(numA), stdin);
     cleanBuffers(numA);  
     while(checkInt(numA, sizeof(numA)) == 0)
@@ -51,7 +51,7 @@ int main(void)
     }   
     valA = strtol(numA, NULL, 10);
     
-    printf("Please enter second digit: ");
+    printf("Please enter second integer (Only digits, -2147483648 to 2147483647): ");
     fgets(numB, sizeof(numB), stdin);
     cleanBuffers(numB);
     while(checkInt(numB, sizeof(numB)) == 0)
@@ -62,7 +62,7 @@ int main(void)
     }
     valB = strtol(numB, NULL, 10);
     
-    printf("Please enter input file: ");
+    printf("Please enter input file (Must be in same folder as this program): ");
     fgets(in, sizeof(in), stdin);
     cleanBuffers(in);
     while((input = checkFile(in, sizeof(in), 0)) == NULL)
@@ -72,12 +72,12 @@ int main(void)
         cleanBuffers(in); 
     }
     
-    printf("Please enter output file: ");
+    printf("Please enter output file (Must be in same folder as this program): ");
     fgets(out, sizeof(out), stdin);
     cleanBuffers(out);
     while((output = checkFile(out, sizeof(out), 0))== NULL)
     {
-        printf("Please enter a valid input file: ");
+        printf("Please enter a valid output file: ");
         fgets(out, sizeof(out), stdin);
         cleanBuffers(out); 
     }
@@ -86,7 +86,9 @@ int main(void)
     fgets(pwd, sizeof(pwd), stdin);
     cleanBuffers(pwd);
     
-    printf("%s, %s. %d %d.\n", fName, lName, valA, valB);
+    fclose(input);
+    fclose(output);
+    
     printf("Press ENTER key to close program\n");  
     getchar(); 
 }
@@ -169,6 +171,9 @@ int checkInt(char *numStr, int bufSize)
 FILE* checkFile(char *fileName, int bufSize, int inOut)
 {
     FILE *file;
+    char path[52] = "./";
+    char *par;
+    
     if(strLength(fileName, bufSize) > 50)
     {
         printf("Filename exceeds 50 characters.\n");
@@ -176,9 +181,7 @@ FILE* checkFile(char *fileName, int bufSize, int inOut)
         return file;
     }
     
-    char path[52] = "./";
     strncpy(path + 2, fileName, bufSize);
-    char *par;
     
     if(inOut == 0)
         par = "r";
