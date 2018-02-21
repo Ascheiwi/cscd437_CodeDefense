@@ -14,6 +14,7 @@ public class CodeDefenseTester
 		promptNumbers();
 		inputFile = promptInputFile();
 		outputFile = promptOutputFile();
+		promptPassword();
 	}
 	
 	public static void promptName()
@@ -115,8 +116,11 @@ public class CodeDefenseTester
 		while(properPassword == false)
 		{
 			System.out.println("Please enter a password: ");
-			
-			
+			password = kb.nextLine();
+			if(checkPassword(password))
+			{
+				properPassword = true;
+			}
 		}
 	}
 	
@@ -162,9 +166,9 @@ public class CodeDefenseTester
 	}
 
 	
-	public boolean checkPassword(String pass)
+	public static boolean checkPassword(String pass)
 	{
-		
+		if(pass.matches(arg0))
 	}
 	
 	
