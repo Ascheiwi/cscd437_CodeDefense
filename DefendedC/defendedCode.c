@@ -47,7 +47,7 @@ int main(void)
         cleanBuffers(lName);
     }
     
-    printf("Please enter first integer (Only digits, -2147483648 to 2147483647): ");
+    printf("Please enter first integer (Only digits ['-' ok at start], -2147483648 to 2147483647): ");
     fgets(numA, sizeof(numA), stdin);
     cleanBuffers(numA);  
     while(checkInt(numA, sizeof(numA)) == 0)
@@ -58,7 +58,7 @@ int main(void)
     }   
     valA = strtol(numA, NULL, 10);
     
-    printf("Please enter second integer (Only digits, -2147483648 to 2147483647): ");
+    printf("Please enter second integer (Only digits ['-' ok at start], -2147483648 to 2147483647): ");
     fgets(numB, sizeof(numB), stdin);
     cleanBuffers(numB);
     while(checkInt(numB, sizeof(numB)) == 0)
@@ -89,7 +89,7 @@ int main(void)
         cleanBuffers(out); 
     }
     
-    printf("Please enter a password (length must be > 8 and < 50): ");
+    printf("Please enter a password (length must be > 7 and < 51): ");
     fgets(pwd, sizeof(pwd), stdin);
     cleanBuffers(pwd);
     while(checkPwd(pwd, sizeof(pwd), fName, sizeof(fName), output) == 0)
