@@ -1,33 +1,81 @@
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
+
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 public class CodeDefenseTester 
 {
 	private static Scanner kb = new Scanner(System.in);
 	
-	public static void main(String...args)
+	public static void main(String...args) throws IOException
 	{
 		File inputFile;
 		File outputFile;
 		
-		promptName();
-		promptNumbers();
+		String[] name = promptName();
+		int[] ints = promptNumbers();
 		inputFile = promptInputFile();
 		outputFile = promptOutputFile();
 		promptPassword();
+		Output(name,ints,inputFile,outputFile);
 	}
 	
-	public static void promptName()
+	private static void Output(String[] name, int[] ints, File inputFile, File outputFile) throws IOException
 	{
-		String uncheckedName; 
+		String str;
+		long sum, multiplied;
+		PrintWriter fout = new PrintWriter(new FileWriter(outputFile));
+		fout.println(name[0] + " " + name[1]);
+		try{
+			sum = Math.addExact(ints[0], ints[1]);
+
+			fout.println(sum + " ints added together");
+
+		}
+		catch(ArithmeticException e)
+		{
+			sum = 0;
+			fout.println("sum was to large");
+		}
+		
+		try
+		{
+			multiplied = Math.multiplyExact(ints[0], ints[1]);
+			fout.println(multiplied + " ints multiplied together");
+		}
+		catch(ArithmeticException e)
+		{
+			multiplied = 0;
+			fout.println("multiplied together ints were to large");
+		}
+		
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
+		while((str = bufferedReader.readLine()) != null) {
+            fout.println(str);
+        }  
+		fout.close();
+		bufferedReader.close();
+
+		
+		
+	}
+
+	public static String[] promptName()
+	{
+		String name1 = null,name2 = null; 
 		boolean properlyEntered1 = false;
 		boolean properlyEntered2 = false;
 		
 		while(properlyEntered1 == false)
 		{
 			System.out.println("Please enter a first name (less than 50 characters): ");
-			uncheckedName = kb.nextLine();
-			if(checkName(uncheckedName))
+			name1 = kb.nextLine();
+			if(checkName(name1))
 			{
 				properlyEntered1 = true;
 			}
@@ -36,17 +84,20 @@ public class CodeDefenseTester
 		while(properlyEntered2 == false)
 		{
 			System.out.println("Pleas enter a last name (less than 50 characters): ");
-			uncheckedName = kb.nextLine();
-				if(checkName(uncheckedName))
+			name2 = kb.nextLine();
+				if(checkName(name2))
 				{
 					properlyEntered2 = true;
 				}
 		}
+		String[] names= new String[2];
+		names[0] = name1; names[1] = name2;
+		return names;
 	}
 	
-	public static void promptNumbers()
+	public static int[] promptNumbers()
 	{
-		String numOne, numTwo;
+		String numOne = null, numTwo = null;
 		boolean properNumber = false;
 		
 		while(properNumber == false)
@@ -68,6 +119,10 @@ public class CodeDefenseTester
 				properNumber = true;
 			}
 		}
+		int[] ints = new int[2];
+		ints[0] = Integer.parseInt(numOne); ints[1] = Integer.parseInt(numTwo);
+		return ints;
+		
 	}
 	
 	public static File promptInputFile()
@@ -84,8 +139,8 @@ public class CodeDefenseTester
 				properFile = true;
 			}
 		}
-		URL path = Tester.class.getResource(fileName);
-		File inputFile = new File(path.getFile());
+		//URL path = CodeDefenseTester.class.getResource(fileName);
+		File inputFile = new File(fileName);
 		return inputFile;
 	}
 	
@@ -103,26 +158,95 @@ public class CodeDefenseTester
 				properFile = true;
 			}
 		}
-		URL path = Tester.class.getResource(fileName);
-		File outputFile = new File(path.getFile());
+		//URL path = CodeDefenseTester.class.getResource(fileName);
+		File outputFile = new File(fileName);
 		return outputFile;
 	}
 	
-	public static void promptPassword()
+	public static void promptPassword() throws IOException
 	{
-		String password;
-		boolean properPassword = false;
+		byte[] hashed;
+		File fout = new File("pass_salt.txt");
+		FileOutputStream fos = new FileOutputStream(fout);
+		Random RANDOM = new SecureRandom();
+		String password = null;
+		char[] pass;
+		boolean properPassword = false, isCorrect = false;
 		
 		while(properPassword == false)
 		{
-			System.out.println("Please enter a password: ");
+			System.out.println("Please enter a password(8-50 characters long): ");
 			password = kb.nextLine();
 			if(checkPassword(password))
 			{
 				properPassword = true;
 			}
 		}
+		properPassword = false;
+		byte[] salt = new byte[16];
+		pass = password.toCharArray();
+		RANDOM.nextBytes(salt);
+		fos.write(hash(pass,salt));
+		fos.write('\t');
+		fos.write(salt);
+		salt = null;
+		fos.close();
+		while(isCorrect == false)
+		{
+			while(properPassword == false)
+			{
+				System.out.println("Please enter a password(8-50 characters long): ");
+				password = kb.nextLine();
+				if(checkPassword(password))
+				{
+					properPassword = true;
+				}
+			}
+			pass = password.toCharArray();
+			File fin = new File("pass_salt.txt");
+			salt = Files.readAllBytes(fin.toPath());
+			hashed = Arrays.copyOfRange(salt, 0, 32);
+			salt = Arrays.copyOfRange(salt,33,49);
+			
+			if(isExpectedPassword(pass,salt,hashed))
+			{
+				isCorrect = true;
+				System.out.println("Password is correct");
+			}
+			else
+			{
+				System.out.println("Incorrect password please try again");
+				properPassword = false;
+			}
+
+		}
+		
+		
 	}
+	
+	public static byte[] hash(char[] pass, byte[] salt)//https://stackoverflow.com/questions/18142745/how-do-i-generate-a-salt-in-java-for-salted-hash
+	{
+		PBEKeySpec spec = new PBEKeySpec(pass, salt, 1000, 256);
+	    Arrays.fill(pass, Character.MIN_VALUE);
+	    try {
+	    	SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+	    	return skf.generateSecret(spec).getEncoded();
+	    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+	    	throw new AssertionError("Error while hashing a password: " + e.getMessage(), e);
+	    } finally {
+	    	spec.clearPassword();
+	    }
+	}
+	
+	public static boolean isExpectedPassword(char[] password, byte[] salt, byte[] expectedHash) {//https://stackoverflow.com/questions/18142745/how-do-i-generate-a-salt-in-java-for-salted-hash
+	    byte[] pwdHash = hash(password, salt);
+	    Arrays.fill(password, Character.MIN_VALUE);
+	    if (pwdHash.length != expectedHash.length) return false;
+	    for (int i = 0; i < pwdHash.length; i++) {
+	      if (pwdHash[i] != expectedHash[i]) return false;
+	    }
+	    return true;
+	  }
 	
 	public static boolean checkName(String name)
 	{
@@ -136,10 +260,18 @@ public class CodeDefenseTester
 	
 	public static boolean checkNumber(String num)
 	{
-		
-		if(num.matches("^-*[0-9,.]+$"))
+		int number = 0;
+		if(num.matches("^-*[0-9,.]+$"))//"^-*[0-9,.]+$"
 		{
-			int number = Integer.parseInt(num);
+			try{
+				number = Integer.parseInt(num);
+			}
+			catch(NumberFormatException e)
+			{
+				System.out.println("That is not a valid int.");
+				return false;
+				
+			}
 			if(number > -2147483647 && number < 2147483647)
 			{
 				return true;
@@ -151,7 +283,7 @@ public class CodeDefenseTester
 	
 	public static boolean checkFile(String fileName)
 	{
-		URL path = Tester.class.getResource(fileName);
+		URL path = CodeDefenseTester.class.getResource(fileName);
 		try
 		{
 			File file = new File(path.getFile());
@@ -168,7 +300,9 @@ public class CodeDefenseTester
 	
 	public static boolean checkPassword(String pass)
 	{
-		if(pass.matches(arg0))
+		if(pass.length() < 50 && pass.length() > 8)
+			return true;
+		else return false;
 	}
 	
 	
