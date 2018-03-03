@@ -86,7 +86,7 @@ public class CodeDefenseTester
 		
 		while(properlyEntered2 == false)
 		{
-			System.out.println("Pleas enter a last name (less than 50 characters): ");
+			System.out.println("Please enter a last name (less than 50 characters): ");
 			name2 = kb.nextLine();
 				if(checkName(name2))
 				{
@@ -262,7 +262,7 @@ public class CodeDefenseTester
 		{
 			return true;
 		}
-		System.out.println("That is not a valid name.");
+		System.out.println("That is not a valid name. Only A-Za-z are allowed");
 		return false;
 	}
 	
