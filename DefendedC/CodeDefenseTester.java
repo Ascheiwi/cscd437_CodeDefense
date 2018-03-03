@@ -3,6 +3,7 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.io.*;
+import java.math.BigInteger;
 import java.net.URL;
 import java.nio.file.Files;
 
@@ -14,47 +15,49 @@ public class CodeDefenseTester
 	
 	public static void main(String...args) throws IOException
 	{
-		File inputFile;
-		File outputFile;
+		File[] files = new File[2];
 		
 		String[] name = promptName();
 		int[] ints = promptNumbers();
-		inputFile = promptInputFile();
-		outputFile = promptOutputFile();
+		files[0] = promptInputFile();
+		files[1] = promptOutputFile(files);
 		promptPassword();
-		Output(name,ints,inputFile,outputFile);
+		Output(name,ints,files);
 	}
 	
-	private static void Output(String[] name, int[] ints, File inputFile, File outputFile) throws IOException
+	private static void Output(String[] name, int[] ints, File[] files) throws IOException
 	{
 		String str;
-		long sum, multiplied;
-		PrintWriter fout = new PrintWriter(new FileWriter(outputFile));
+		BigInteger sum, multiplied;
+		BigInteger[] bigInts = new BigInteger[2];
+		bigInts[0] = BigInteger.valueOf(ints[0]);
+		bigInts[1] = BigInteger.valueOf(ints[1]);
+		PrintWriter fout = new PrintWriter(new FileWriter(files[1]));
 		fout.println(name[0] + " " + name[1]);
 		try{
-			sum = Math.addExact(ints[0], ints[1]);
+			sum = bigInts[0].add(bigInts[1]);
 
 			fout.println(sum + " ints added together");
 
 		}
 		catch(ArithmeticException e)
 		{
-			sum = 0;
+			sum = BigInteger.valueOf(0);
 			fout.println("sum was to large");
 		}
 		
 		try
 		{
-			multiplied = Math.multiplyExact(ints[0], ints[1]);
+			multiplied = bigInts[0].multiply(bigInts[1]);
 			fout.println(multiplied + " ints multiplied together");
 		}
 		catch(ArithmeticException e)
 		{
-			multiplied = 0;
+			multiplied = BigInteger.valueOf(0);
 			fout.println("multiplied together ints were to large");
 		}
 		
-		BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(files[0]));
 		while((str = bufferedReader.readLine()) != null) {
             fout.println(str);
         }  
@@ -144,7 +147,7 @@ public class CodeDefenseTester
 		return inputFile;
 	}
 	
-	public static File promptOutputFile()
+	public static File promptOutputFile(File[] files)
 	{
 		String fileName = "";
 		boolean properFile = false;
@@ -153,9 +156,14 @@ public class CodeDefenseTester
 		{
 			System.out.println("Please enter output file (must be in the same directory as this program): ");
 			fileName = kb.nextLine();
-			if(checkFile(fileName))
+			if(files[0].compareTo(new File(fileName)) != 0)
 			{
 				properFile = true;
+			}
+			else
+			{
+				if(files[0].compareTo(new File(fileName)) != 0)
+					System.out.println("output file cannot be the same as the output file");
 			}
 		}
 		//URL path = CodeDefenseTester.class.getResource(fileName);
