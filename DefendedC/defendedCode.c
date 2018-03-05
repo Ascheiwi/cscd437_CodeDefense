@@ -27,7 +27,7 @@ int main(void)
     int valA, valB;
     FILE *input, *output;
     
-    printf("Please enter a first name (Only alphabetic chars, length < 50): ");
+    printf("Please enter a first name (Only alphabetic chars, length <= 50): ");
     fgets(fName, sizeof(fName), stdin);
     cleanBuffers(fName);
     while(checkName(fName, sizeof(fName)) == 0)
@@ -37,7 +37,7 @@ int main(void)
         cleanBuffers(fName);
     }
     
-    printf("Please enter a last name (Only alphabetic chars, length < 50): ");
+    printf("Please enter a last name (Only alphabetic chars, length <= 50): ");
     fgets(lName, sizeof(lName), stdin);
     cleanBuffers(lName);
     while(checkName(lName, sizeof(lName)) == 0)
@@ -69,7 +69,7 @@ int main(void)
     }
     valB = strtol(numB, NULL, 10);
     
-    printf("Please enter input file (Must be in same directory as this program): ");
+    printf("Please enter input file (Must be in same directory as this program, <= 50 chars): ");
     fgets(in, sizeof(in), stdin);
     cleanBuffers(in);
     while((input = checkFile(in, sizeof(in), 0)) == NULL)
@@ -79,7 +79,7 @@ int main(void)
         cleanBuffers(in); 
     }
     
-    printf("Please enter output file (Must be in same directory as this program): ");
+    printf("Please enter output file (Must be in same directory as this program, <= 50 chars): ");
     fgets(out, sizeof(out), stdin);
     cleanBuffers(out);
     while((output = checkFile(out, sizeof(out), 1))== NULL)
@@ -216,6 +216,13 @@ FILE* checkFile(char *fileName, int bufSize, int inOut)
         return file;
     }
     
+    if(strstr(fileName, "..") != NULL || strchr(fileName, '/') != NULL || strchr(fileName, '\\') != NULL )
+    {
+        printf("Invalid characters in filename. Please input filename in this directory only, no paths allowed.\n");
+        file = NULL;
+        return file;        
+    }
+    
     strncpy(path + 2, fileName, bufSize);
     
     if(inOut == 0)
@@ -317,4 +324,3 @@ void hashPwd(char *pwd, int bufSize, unsigned char *hash)
     sha256_update(&ctx, (unsigned char*) pwd, bufSize);
     sha256_final(&ctx, hash);
 }
-
