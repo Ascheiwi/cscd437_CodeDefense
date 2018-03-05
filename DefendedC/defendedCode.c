@@ -206,7 +206,6 @@ int checkInt(char *numStr, int bufSize)
 FILE* checkFile(char *fileName, int bufSize, int inOut)
 {
     FILE *file;
-    char path[52] = "./";
     char *par;
     
     if(strnlen(fileName, bufSize) > 50)
@@ -223,14 +222,12 @@ FILE* checkFile(char *fileName, int bufSize, int inOut)
         return file;        
     }
     
-    strncpy(path + 2, fileName, bufSize);
-    
     if(inOut == 0)
         par = "r";
     else
         par = "w";
     
-    errno_t res = fopen_s(&file, path, par);
+    errno_t res = fopen_s(&file, fileName, par);
     if(res != 0)
     {
         file = NULL;
