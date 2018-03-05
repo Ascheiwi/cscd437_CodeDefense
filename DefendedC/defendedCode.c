@@ -1,7 +1,7 @@
 /* 
  * File: defendedCode.c
  * Team: NullPointerDejection
- * Authors: Louis A. Sorensen, Avery Scheiwiller, Devon Gifford
+ * Authors: Louis A. Sorensen, Avery Scheiwiller, Devan Gifford
  * Compiled with: GNU MinGW-w64 6.3.0
  * Defends Against: Buffer overflow, files from outside program directory.
  */
