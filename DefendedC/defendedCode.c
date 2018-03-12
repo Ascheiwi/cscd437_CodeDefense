@@ -1,7 +1,7 @@
 /* 
  * File: defendedCode.c
  * Team: NullPointerDejection
- * Authors: Louis A. Sorensen, Avery Scheiwiller, Devon Gifford
+ * Authors: Louis A. Sorensen, Avery Scheiwiller, Devan Gifford
  * Compiled with: GNU MinGW-w64 6.3.0
  * Defends Against: Buffer overflow, files from outside program directory.
  */
@@ -228,7 +228,11 @@ FILE* checkFile(char *fileName, int bufSize, int inOut)
     else
         par = "w";
     
+<<<<<<< HEAD
     int res = fopen_s(&file, fileName, par);
+=======
+    errno_t res = fopen_s(&file, fileName, par);
+>>>>>>> 8c0b72648b6657b26bc812e6b54783dac9ff0729
     if(res != 0)
     {
         file = NULL;
